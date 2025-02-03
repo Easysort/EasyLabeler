@@ -3,8 +3,10 @@ from PyQt5.QtCore import Qt, QTimer
 
 from views.image_viewer import ImageViewer
 from views.video_list import VideoListWidget
-from state import State
+from views.controls import ControlsWidget
+from views.recorder import Recorder
 from keybinds import Keybinds
+from state import State
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -43,10 +45,17 @@ class CentralWidget(QWidget):
         self.frame_number_label.setAlignment(Qt.AlignCenter)
         self.frame_number_label.setContentsMargins(10, 10, 10, 10)
 
+        self.controls = ControlsWidget(self, self.state)
+        self.recorder = Recorder(self, self.state)
         self.image_viewer = ImageViewer(self, self.state)
         self.video_list = VideoListWidget(self, self.state)
         self.make_layout()
         self.player = None
+
+        # Avoid keyboard not being triggered when focus on some widgets
+        self.video_list.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.StrongFocus)
+
 
     def make_layout(self):
         main_layout = QVBoxLayout()
@@ -65,13 +74,24 @@ class CentralWidget(QWidget):
         image_box.setLayout(image_layout)
         content_layout.addWidget(image_box)
 
-        main_layout.addLayout(content_layout)
+        control_box = QGroupBox("Control")
+        control_layout = QVBoxLayout()
+        control_layout.addWidget(self.controls)
+        control_layout.addWidget(self.recorder)
+        control_layout.addStretch()
+        control_box.setLayout(control_layout)
+        content_layout.addWidget(control_box)
         main_layout.addWidget(self.frame_number_label)
-
+        main_layout.addLayout(content_layout)
         self.setLayout(main_layout)
 
     def update_frame_number(self, current_frame, total_frames):
         self.frame_number_label.setText(f"Frame {current_frame} of {total_frames}")
+
+    def reload_video(self):
+        self.state.video_list = self.state.find_videos()
+        self.video_list.on_video_change()
+        self.image_viewer.on_video_change()
 
     def reload_image(self):
         self.image_viewer.on_current_frame_change()
