@@ -1,0 +1,97 @@
+from PyQt5.QtWidgets import QMainWindow, QAction, QApplication, QHBoxLayout, QWidget, QGroupBox, QVBoxLayout, QLabel
+from PyQt5.QtCore import Qt, QTimer
+
+from views.image_viewer import ImageViewer
+from views.video_list import VideoListWidget
+from state import State
+from keybinds import Keybinds
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("EasyLabeler")
+
+        self.central_widget = CentralWidget()
+        self.central_widget.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusProxy(self.central_widget)
+        self.central_widget.setFocus(True)
+
+        self.statusBar()
+
+        mainMenu = self.menuBar()
+        fileMenu = mainMenu.addMenu('&File')
+
+        close = QAction('Close window', self)
+        close.setShortcut('Ctrl+W')
+        close.triggered.connect(self.close)
+        fileMenu.addAction(close)
+
+        self.setCentralWidget(self.central_widget)
+
+        self.show()
+
+class CentralWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.state = State()
+        self.keybinds = Keybinds(self)
+        self.keyPressEvent = self.keybinds.keyPressEvent
+
+        self.frame_number_label = QLabel()
+        self.frame_number_label.setStyleSheet("color: black;")
+        self.frame_number_label.setAlignment(Qt.AlignCenter)
+        self.frame_number_label.setContentsMargins(10, 10, 10, 10)
+
+        self.image_viewer = ImageViewer(self, self.state)
+        self.video_list = VideoListWidget(self, self.state)
+        self.make_layout()
+        self.player = None
+
+    def make_layout(self):
+        main_layout = QVBoxLayout()
+
+        content_layout = QHBoxLayout()
+
+        navbar_box = QGroupBox("Videos")
+        navbar_layout = QVBoxLayout()
+        navbar_layout.addWidget(self.video_list)
+        navbar_box.setLayout(navbar_layout)
+        content_layout.addWidget(navbar_box)
+
+        image_box = QGroupBox("Image")
+        image_layout = QVBoxLayout()
+        image_layout.addWidget(self.image_viewer)
+        image_box.setLayout(image_layout)
+        content_layout.addWidget(image_box)
+
+        main_layout.addLayout(content_layout)
+        main_layout.addWidget(self.frame_number_label)
+
+        self.setLayout(main_layout)
+
+    def update_frame_number(self, current_frame, total_frames):
+        self.frame_number_label.setText(f"Frame {current_frame} of {total_frames}")
+
+    def reload_image(self):
+        self.image_viewer.on_current_frame_change()
+
+    ## KEYBINDS ##
+    def play(self):
+        if self.player is None:
+            self.player = QTimer()
+            self.player.timeout.connect(lambda: (self.state.change_frame(1), self.image_viewer.on_current_frame_change()))
+            self.player.start(100)
+        else:
+            self.player.stop()
+            self.player = None
+
+    def skip1(self): self.state.change_frame(1); self.image_viewer.on_current_frame_change()
+    def skip5(self): self.state.change_frame(5); self.image_viewer.on_current_frame_change()
+    def skip_back1(self): self.state.change_frame(-1); self.image_viewer.on_current_frame_change()
+    def skip_back5(self): self.state.change_frame(-5); self.image_viewer.on_current_frame_change()
+
+if __name__ == '__main__':
+    app = QApplication([])
+    main_window = MainWindow()
+    app.exec()
