@@ -1,0 +1,3 @@
+[submodule "Easysort"]
+	path = Easysort
+	url = https://github.com/Easysort/Easysort
