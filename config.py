@@ -1,1 +1,2 @@
 DATA_DIR = "data"
+YOLO_WEIGHTS_PATH = ""

@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import (QGroupBox, QPushButton, QVBoxLayout, QProgressBar, QApplication)
 
 from ..state import State
+from ..utils.classes_yoloworld import YOLO_WORLD_CLASSES
+from ..utils.detection import Detection, Bbox
 from ..Easysort.easysort.sorting.infer_yoloWorld import ClassifierYoloWorld
 from ..Easysort.easysort.sorting.infer_yolov8_ultralytics import Classifier
 
@@ -75,7 +77,7 @@ class YoloWidget(QGroupBox):
     
     def on_run_yolo_world_detection(self):
         if self.yolo_world_classifier is None:
-            self.yolo_world_classifier = ClassifierYoloWorld()
+            self.yolo_world_classifier = ClassifierYoloWorld(classes=list(YOLO_WORLD_CLASSES.values()))
 
         # (array([     965.95,      882.03,      1482.4,        1200]), None, 0.6757980585098267, 14, None, {'class_name': 'Colored yogurt bottle'})
         # xywh, None, confidence, class_id, None, class_name
