@@ -4,31 +4,26 @@ import numpy as np
 
 class Bbox:
     def __init__(self, x=0, y=0, w=0, h=0): self.pos = np.array([x, y], dtype=float); self.size = np.array([w, h], dtype=float)
+    def resize(self, scale): self.pos *= scale; self.size *= scale; return self
+    def __bool__(self): return bool(np.any(self.pos) or np.any(self.size))
     
     @staticmethod
     def get_thickness(): return 2
 
     @staticmethod
-    def get_anchor_size(): return 4 * Bbox.get_thickness()
-    
-    def resize(self, scale): self.pos *= scale; self.size *= scale; return self
-    def __bool__(self): return bool(np.any(self.pos) or np.any(self.size))
+    def get_anchor_size(): return 4 * Bbox.get_thickness()    
 
     @property
-    def xywh(self):
-        return np.concatenate([self.pos, self.size])
+    def xywh(self): return np.concatenate([self.pos, self.size])
 
     @property
-    def x1y1x2y2(self):
-        return np.concatenate([self.pos, self.pos + self.size])
+    def x1y1x2y2(self): return np.concatenate([self.pos, self.pos + self.size])
 
     @property
-    def xcycwh(self):
-        return np.concatenate([self.center, self.size])
+    def xcycwh(self): return np.concatenate([self.center, self.size])
 
     @property
-    def center(self):
-        return self.pos + self.size / 2
+    def center(self): return self.pos + self.size / 2
 
     def set_x1(self, x1): self.size[0] += (self.pos[0] - x1); self.pos[0] = x1
     def set_y1(self, y1): self.size[1] += (self.pos[1] - y1); self.pos[1] = y1
