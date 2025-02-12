@@ -6,7 +6,7 @@ from PyQt5.QtMultimediaWidgets import QCameraViewfinder
 import os
 import uuid
 
-from state import State
+from core.state import State
 
 class Recorder(QGroupBox):
     def __init__(self, central_widget: QWidget, state: State):

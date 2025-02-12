@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPainter, QImage
 import cv2
 import numpy as np
 
-from state import State
+from core.state import State
 
 class ImageViewer(QWidget):
     def __init__(self, central_widget: QWidget, state: State):

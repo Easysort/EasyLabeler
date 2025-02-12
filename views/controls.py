@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QWidget
 
-from state import State
+from core.state import State
 
 class ControlsWidget(QGroupBox):
     def __init__(self, central_widget: QWidget, state: State):

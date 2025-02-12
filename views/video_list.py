@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QWidget
 from PyQt5.QtGui import QColor
 
-from state import State
+from core.state import State
 
 class VideoListWidget(QListWidget):
     def __init__(self, central_widget: QWidget, state: State):

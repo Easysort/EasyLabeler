@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import (QGroupBox, QPushButton, QVBoxLayout, QProgressBar, QApplication)
 
-from ..state import State
-from ..utils.classes_yoloworld import YOLO_WORLD_CLASSES
-from ..utils.detection import Detection, Bbox
-from ..Easysort.easysort.sorting.infer_yoloWorld import ClassifierYoloWorld
-from ..Easysort.easysort.sorting.infer_yolov8_ultralytics import Classifier
+from core.state import State
+from utils.classes_yoloworld import YOLO_WORLD_CLASSES
+from utils.detection import Detection, Bbox
+from Easysort.easysort.sorting.infer_yoloWorld import ClassifierYoloWorld
+from Easysort.easysort.sorting.infer_yolov8_ultralytics import Classifier
 
 class YoloWidget(QGroupBox):
     def __init__(self, state: State):
