@@ -82,7 +82,6 @@ class YoloWidget(QGroupBox):
         # (array([     965.95,      882.03,      1482.4,        1200]), None, 0.6757980585098267, 14, None, {'class_name': 'Colored yogurt bottle'})
         # xywh, None, confidence, class_id, None, class_name
 
-        # Setup progress bar
         total_frames = len(self.state.file_names)
         self.progress_bar.setMaximum(total_frames)
         self.progress_bar.setValue(0)
