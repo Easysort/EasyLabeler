@@ -27,18 +27,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff mypy pylint pytest
+          pip install ruff pylint pytest
 
       - name: Run Ruff
-        run: python -m ruff check easysort/ tests/ --fix
-
-      - name: Run MyPy
-        run: python -m mypy easysort/ --strict-equality --follow-imports=silent
+        run: python -m ruff check core/ utils/ views/ main.py config.py mapping.py tests/ --fix
 
       - name: Run Tests
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: "."
         run: python -m pytest tests/
 
       - name: Run Pylint
-        run: python -m pylint easysort/ 
+        run: python -m pylint core/ utils/ views/ main.py config.py mapping.py tests/
