@@ -17,6 +17,23 @@ jobs:
         with:
           python-version: '3.10'  # adjust version as needed
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libpulse-mainloop-glib0 \
+            libgstreamer1.0-0 \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad \
+            gstreamer1.0-plugins-ugly \
+            gstreamer1.0-libav \
+            libqt5multimedia5-plugins \
+            libqt5multimedia5 \
+            libqt5multimediagsttools5 \
+            libqt5multimediawidgets5 \
+            qtmultimedia5-dev
+
       - uses: actions/cache@v3
         with:
           path: ~/.cache/pip
@@ -35,6 +52,7 @@ jobs:
       - name: Run Tests
         env:
           PYTHONPATH: "."
+          QT_QPA_PLATFORM: "offscreen"
         run: python -m pytest tests/
 
       - name: Run Pylint
