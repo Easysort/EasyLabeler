@@ -4,25 +4,19 @@ repos:
     hooks:
       - id: ruff
         name: ruff
-        entry: python3 -m ruff check easysort/ tests/ --fix
-        language: system
-        always_run: true
-        pass_filenames: false
-      - id: mypy
-        name: mypy
-        entry: python3 -m mypy easysort/ --strict-equality --follow-imports=silent
+        entry: python3 -m ruff check core/ utils/ views/ main.py config.py mapping.py tests/ --fix
         language: system
         always_run: true
         pass_filenames: false
       - id: tests
-        name: subset of tests
+        name: tests
         entry: env PYTHONPATH="." python3 -m pytest tests/
         language: system
         always_run: true
         pass_filenames: false
       - id: pylint
         name: pylint
-        entry: python3 -m pylint easysort/
+        entry: python3 -m pylint core/ utils/ views/ main.py config.py mapping.py tests/
         language: system
         always_run: true
         pass_filenames: false

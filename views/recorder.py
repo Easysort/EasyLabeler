@@ -1,6 +1,5 @@
-from PyQt5.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox, QLabel, QWidget
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QWidget
+from PyQt5.QtCore import QTimer
 from PyQt5.QtMultimedia import QCamera, QCameraInfo, QCameraImageCapture
 from PyQt5.QtMultimediaWidgets import QCameraViewfinder
 import os
@@ -27,7 +26,9 @@ class Recorder(QGroupBox):
         self.setLayout(layout)
         self.recorder_window = None
 
-    def open_recorder_window(self): self.recorder_window = RecorderWindow(self.central_widget, self.state); self.recorder_window.show()
+    def open_recorder_window(self):
+        self.recorder_window = RecorderWindow(self.central_widget, self.state)
+        self.recorder_window.show()
 
 class RecorderWindow(QWidget):
     def __init__(self, central_widget: QWidget, state: State):
@@ -53,7 +54,7 @@ class RecorderWindow(QWidget):
             self.capture = QCameraImageCapture(self.camera)
             self.capture.setCaptureDestination(QCameraImageCapture.CaptureToFile)
             self.capture.imageSaved.connect(self.image_saved)
-            
+
             self.camera.start()
         else:
             self.camera = None
@@ -65,8 +66,8 @@ class RecorderWindow(QWidget):
         self.stop_button = QPushButton("Stop")
         self.quit_button = QPushButton("Quit")
         self.record_button.clicked.connect(lambda: self.record(True))
-        self.stop_button.clicked.connect(lambda: self.stop_recording())
-        self.quit_button.clicked.connect(lambda: self.close())
+        self.stop_button.clicked.connect(self.stop_recording)
+        self.quit_button.clicked.connect(self.close)
         button_layout.addWidget(self.record_button)
         button_layout.addWidget(self.stop_button)
         button_layout.addWidget(self.quit_button)
@@ -80,19 +81,19 @@ class RecorderWindow(QWidget):
         self.setLayout(layout)
         self.timer = QTimer()
         self.timer.timeout.connect(self.capture_frame)
-    
+
     def quit(self):
         self.close()
         self.state.video_list = self.state.find_videos()
-        
+
     def stop_recording(self):
         self.record(False)
-        
+
     def capture_frame(self):
         if self.camera and self.recording:
             self.capture.capture(os.path.join(self.frame_dir, f"frame_{self.frames_index:04d}.jpg"))
 
-    def image_saved(self, id, filename):
+    def image_saved(self, _id, filename):
         if self.recording:
             self.frames_index += 1
 
@@ -114,7 +115,9 @@ class RecorderWindow(QWidget):
             self.timer.start(1000//self.fps)
 
     def closeEvent(self, event):
-        if self.camera: self.camera.stop(); self.camera = None
+        if self.camera:
+            self.camera.stop()
+            self.camera = None
         if hasattr(self, 'capture'): self.capture = None
         self.central_widget.reload_video()
         self.timer.stop()

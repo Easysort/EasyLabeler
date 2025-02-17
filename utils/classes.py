@@ -14,7 +14,7 @@ DEFAULT_CLASS_NAMES = {
     11: "White pet bottle",
     12: "Pet bottle other colour",
     13: "Coloured hdpe bottle",
-    14: "Coloured yoghurt plastic bottle", 
+    14: "Coloured yoghurt plastic bottle",
     15: "Coloured hdpe bottle",
     16: "Natural hdpe bottle",
     17: "Natural yoghurt plastic bottle",
@@ -86,7 +86,7 @@ DEFAULT_FRACTIONS = {
 
 FRACTIONS_NAMES = {
     0: "Hard plastics",
-    1: "Flexible plastics", 
+    1: "Flexible plastics",
     2: "Metals",
     3: "Paper/Cardboard",
     4: "Composite",

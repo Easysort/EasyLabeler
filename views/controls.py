@@ -9,15 +9,15 @@ class ControlsWidget(QGroupBox):
         self.state = state
 
         layout = QVBoxLayout()
-        
+
         self.reset_button = QPushButton("Reset All Annotations")
         self.move_to_verified_button = QPushButton("Move to Verified")
         self.move_to_new_button = QPushButton("Move to New")
-        
+
         self.reset_button.clicked.connect(self.state.reset_annotations)
         self.move_to_verified_button.clicked.connect(self.state.move_to_verified)
         self.move_to_new_button.clicked.connect(self.state.move_to_new)
-        
+
         layout.addWidget(self.reset_button)
         layout.addWidget(self.move_to_verified_button)
         layout.addWidget(self.move_to_new_button)
