@@ -1,7 +1,6 @@
 
 import numpy as np
 
-
 class Bbox:
     def __init__(self, x: float = 0, y: float = 0, w: float = 0, h: float = 0):
         self.pos = np.array([x, y], dtype=float)
@@ -25,6 +24,15 @@ class Bbox:
     def to_dict(self) -> dict: return {"x": self.pos[0], "y": self.pos[1], "w": self.size[0], "h": self.size[1]}
     def copy(self) -> "Bbox": return Bbox(*self.to_json())
     def __repr__(self) -> str: return "Bbox(x={}, y={}, w={}, h={})".format(self.pos[0], self.pos[1], self.size[0], self.size[1])
+
+    @property
+    def x1(self) -> float: return self.pos[0]
+    @property
+    def y1(self) -> float: return self.pos[1]
+    @property
+    def x2(self) -> float: return self.pos[0] + self.size[0]
+    @property
+    def y2(self) -> float: return self.pos[1] + self.size[1]
 
 class Detection:
     def __init__(self, frame: int, class_id: int = 0, track_id: int = 0, bbox: Bbox | list[float] = Bbox()):

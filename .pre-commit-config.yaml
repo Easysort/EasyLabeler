@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: ruff
         name: ruff
-        entry: python3 -m ruff check
+        entry: python3 -m ruff check --fix
         language: system
         types: [python]
       - id: tests

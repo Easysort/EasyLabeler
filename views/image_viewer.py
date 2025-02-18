@@ -18,6 +18,9 @@ class ImageViewer(QWidget):
         self.fixed_height = int(self.fixed_width * 0.75)
         self.setFixedSize(self.fixed_width, self.fixed_height)
 
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocus()
+
         self.setMouseTracking(True)
 
         self.img = None
@@ -31,6 +34,7 @@ class ImageViewer(QWidget):
         self.on_current_frame_change()
 
     def on_video_change(self):
+        # Should save detections before changing video
         self.on_current_frame_change()
 
     def on_current_frame_change(self):
@@ -49,6 +53,7 @@ class ImageViewer(QWidget):
         self.update()
 
     def mousePressEvent(self, event):
+        self.setFocus()
         if event.button() == Qt.LeftButton:
             if not self.is_creating_detection:
                 self.is_creating_detection = True
@@ -60,7 +65,7 @@ class ImageViewer(QWidget):
                 detection = Detection(
                     frame=self._state.current_frame,
                     class_id=0,  # Default class # TODO: Add class selection
-                    track_id=0,  # Default track # TODO: Add track selection
+                    track_id=self._state.get_next_track_id(),
                     bbox=bbox
                 )
                 self._state.add_detection(detection)
@@ -74,7 +79,7 @@ class ImageViewer(QWidget):
             self.update()
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Backspace and self.is_creating_detection:
+        if event.key() == Qt.Key_Escape and self.is_creating_detection:
             self.is_creating_detection = False
             self.start_pos = None
             self.current_pos = None
@@ -91,11 +96,21 @@ class ImageViewer(QWidget):
     def paintEvent(self, event):
         qp = QPainter()
         qp.begin(self)
+
         if self.canvas is not None:
             height, width, bpc = self.canvas.shape
             bpl = bpc * width
             img = QImage(self.canvas.data, width, height, bpl, QImage.Format_RGB888)
             qp.drawImage(QPoint(0, 0), img)
+
+            qp.setPen(Qt.blue)
+            for detection in self._state.get_frame_detections(self._state.current_frame):
+                scale = self.zoom * self.img_scale
+                x, y, w, h = detection.bbox.xywh() * scale
+                x += self.offset.x()
+                y += self.offset.y()
+                qp.drawRect(int(x), int(y), int(w), int(h))
+
             if self.is_creating_detection and self.start_pos and self.current_pos:
                 qp.setPen(Qt.red)
                 x = min(self.start_pos.x(), self.current_pos.x())
@@ -103,4 +118,5 @@ class ImageViewer(QWidget):
                 w = abs(self.current_pos.x() - self.start_pos.x())
                 h = abs(self.current_pos.y() - self.start_pos.y())
                 qp.drawRect(x, y, w, h)
+
         qp.end()
