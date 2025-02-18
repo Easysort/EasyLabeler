@@ -81,3 +81,6 @@ class State:
 
     @property
     def num_detections(self) -> int: return len(self.detections)
+
+    def get_frame_detections(self, frame_idx: int) -> List[Detection]:
+        return [v for k,v in self.detections.items() if v.frame == frame_idx] # TODO: Slow, maybe optimize with frame_to_detections

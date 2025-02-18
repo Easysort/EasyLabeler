@@ -55,5 +55,10 @@ class TestState(unittest.TestCase):
         with self.assertRaises(AssertionError):
             self.state.delete_detection([5])
 
+    def test_get_frame_detections(self):
+        self.state.add_detection(Detection(frame=0, class_id=0, track_id=4, bbox=[0, 0, 100, 100]))
+        self.assertEqual(len(self.state.get_frame_detections(0)), 1)
+        self.assertEqual(len(self.state.get_frame_detections(1)), 0)
+
 if __name__ == "__main__":
     unittest.main()
