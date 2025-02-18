@@ -84,3 +84,8 @@ class State:
 
     def get_frame_detections(self, frame_idx: int) -> List[Detection]:
         return [v for k,v in self.detections.items() if v.frame == frame_idx] # TODO: Slow, maybe optimize with frame_to_detections
+
+    def get_next_track_id(self) -> int:
+        if not self.detections: return 0
+        used_ids = [_id for _id in range(max(self.detections.keys()) + 2) if _id not in self.detections]
+        return min(used_ids)

@@ -60,5 +60,18 @@ class TestState(unittest.TestCase):
         self.assertEqual(len(self.state.get_frame_detections(0)), 1)
         self.assertEqual(len(self.state.get_frame_detections(1)), 0)
 
+    def test_get_next_track_id(self):
+        self.assertEqual(self.state.get_next_track_id(), 0)
+        self.state.add_detection(Detection(frame=0, class_id=0, track_id=0, bbox=[0, 0, 100, 100]))
+        self.assertEqual(self.state.get_next_track_id(), 1)
+        self.state.add_detection(Detection(frame=0, class_id=0, track_id=1, bbox=[0, 0, 100, 100]))
+        self.assertEqual(self.state.get_next_track_id(), 2)
+        self.state.add_detection(Detection(frame=0, class_id=0, track_id=2, bbox=[0, 0, 100, 100]))
+        self.assertEqual(self.state.get_next_track_id(), 3)
+        self.state.delete_detection([1])
+        self.assertEqual(self.state.get_next_track_id(), 1)
+        self.state.delete_detection([0, 2])
+        self.assertEqual(self.state.get_next_track_id(), 0)
+
 if __name__ == "__main__":
     unittest.main()
