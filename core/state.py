@@ -13,7 +13,7 @@ class State:
         self.current_video = self.video_list[0]
         self.current_frame = 0
         self.file_names = self.find_files(self.current_video)
-        self.detections = self.load_annotations()
+        self.load_annotations()
         self.frame_to_detections = {} # TODO: Optimize using frame_to_detections when drawing detections
 
     def find_videos(self) -> list[str]:
@@ -26,10 +26,12 @@ class State:
         return sorted(videos)
 
     def set_current_video(self, video_name):
+        self.save_annotations()
         self.current_video = video_name
         self.current_frame = 0
         self.file_names = self.find_files(video_name)
-        self.detections = self.load_annotations()
+        self.load_annotations()
+        print(self.detections)
 
     def change_frame(self, delta):
         self.current_frame = max(min(self.current_frame + delta, len(self.file_names) - 1), 0)
@@ -40,6 +42,7 @@ class State:
         return sorted([os.path.join(video_dir, f) for f in os.listdir(video_dir) if f.endswith('.jpg')])
 
     def reset_annotations(self): self.detections = {}
+
     def move_to_verified(self):
         self.move_folder(
             os.path.join(DATA_DIR, self.current_video.split("/")[-1]),
@@ -57,9 +60,10 @@ class State:
         os.rename(old_path, new_path)
 
     def load_annotations(self) -> dict:
-        if not os.path.exists(os.path.join(DATA_DIR, self.current_video, 'annotations.json')): return {}
-        with open(os.path.join(DATA_DIR, self.current_video, 'annotations.json')) as f:
-            self.detections = {k: Detection.from_json(v) for k,v in json.load(f).items()}
+        if not os.path.exists(os.path.join(DATA_DIR, self.current_video, 'annotations.json')): self.detections = {}
+        else:
+            with open(os.path.join(DATA_DIR, self.current_video, 'annotations.json')) as f:
+                self.detections = {k: Detection.from_json(v) for k,v in json.load(f).items()}
 
     def save_annotations(self):
         if self.detections:
@@ -74,6 +78,7 @@ class State:
     def add_detection(self, detection: Detection):
         assert detection.track_id not in self.detections, f"Detection with track id {detection.track_id} already exists"
         self.detections[detection.track_id] = detection
+        print(self.detections)
 
     def update_detection(self, detection: Detection):
         assert detection.track_id in self.detections, f"Detection with track id {detection.track_id} does not exist, use add_detection instead"
@@ -87,5 +92,6 @@ class State:
 
     def get_next_track_id(self) -> int:
         if not self.detections: return 0
-        used_ids = [_id for _id in range(max(self.detections.keys()) + 2) if _id not in self.detections]
-        return min(used_ids)
+        used_ids = [d.track_id for d in self.detections.values()]
+        free_ids = [_id for _id in range(int(max(self.detections.keys())) + 2) if _id not in used_ids]
+        return min(free_ids)
