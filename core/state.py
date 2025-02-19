@@ -31,7 +31,6 @@ class State:
         self.current_frame = 0
         self.file_names = self.find_files(video_name)
         self.load_annotations()
-        print(self.detections)
 
     def change_frame(self, delta):
         self.current_frame = max(min(self.current_frame + delta, len(self.file_names) - 1), 0)
@@ -78,7 +77,6 @@ class State:
     def add_detection(self, detection: Detection):
         assert detection.track_id not in self.detections, f"Detection with track id {detection.track_id} already exists"
         self.detections[detection.track_id] = detection
-        print(self.detections)
 
     def update_detection(self, detection: Detection):
         assert detection.track_id in self.detections, f"Detection with track id {detection.track_id} does not exist, use add_detection instead"
