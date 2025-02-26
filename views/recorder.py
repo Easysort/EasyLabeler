@@ -84,7 +84,7 @@ class RecorderWindow(QWidget):
 
     def quit(self):
         self.close()
-        self.state.video_list = self.state.find_videos()
+        self.state.load_videos()
 
     def stop_recording(self):
         self.record(False)
