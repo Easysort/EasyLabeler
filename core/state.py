@@ -63,15 +63,16 @@ class State:
         if not os.path.exists(os.path.join(DATA_DIR, self.current_video, 'annotations.json')): self.detections = {}
         else:
             with open(os.path.join(DATA_DIR, self.current_video, 'annotations.json')) as f:
-                self.detections = {k: Detection.from_json(v) for k,v in json.load(f).items()}
+                self.detections = {v['track_id']: Detection.from_json(v) for v in json.load(f)}
 
     def save_annotations(self):
         if self.detections:
             path = os.path.join(DATA_DIR, self.current_video, 'annotations.json')
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, 'w') as f: json.dump({k: v.to_json() for k,v in self.detections.items()}, f, indent=2)
+            with open(path, 'w') as f: json.dump([v.to_json() for v in self.detections.values()], f, indent=2)
 
-    def delete_detection(self, track_ids: List[int]):
+    def delete_detection(self, track_ids: List[int] | int):
+        if isinstance(track_ids, int): track_ids = [track_ids]
         assert all(_id in self.detections for _id in track_ids), f"Detection ids: {[_id for _id in track_ids if _id in self.detections]} do not exist"
         self.detections = {k: v for k, v in self.detections.items() if k not in track_ids}
 
@@ -81,7 +82,7 @@ class State:
 
     def update_detection(self, detection: Detection):
         assert detection.track_id in self.detections, f"Detection with track id {detection.track_id} does not exist, use add_detection instead"
-        self.detections[detection.track_id] = detection # TODO: should be (frame, track_id) -> detection
+        self.detections[detection.track_id] = detection
 
     @property
     def num_detections(self) -> int: return len(self.detections)

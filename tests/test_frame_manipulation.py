@@ -49,9 +49,11 @@ class TestFrameManipulation(unittest.TestCase):
         assert len(central_widget.state.file_names) == 5
         central_widget.state.reset_annotations()
         assert len(central_widget.state.detections) == 0
+        central_widget.state.add_detection(get_dummy_detection(0, track_id=2))
         central_widget.state.add_detection(get_dummy_detection(2))
+        central_widget.state.add_detection(get_dummy_detection(4, track_id=1))
         frame_manipulation_widget.delete_previous_frames()
-        assert len(central_widget.state.detections) == 1
+        assert len(central_widget.state.detections) == 2
         assert central_widget.state.detections[0].frame == 0
         assert central_widget.state.current_frame == 0
         assert len(central_widget.state.file_names) == 3
@@ -60,6 +62,7 @@ class TestFrameManipulation(unittest.TestCase):
         assert len(central_widget.state.file_names) == 1
         assert len(central_widget.state.detections) == 1
         assert central_widget.state.detections[0].frame == 0
+        assert len(central_widget.state.detections) == 1, f"Detections: {central_widget.state.detections}"
         copied_path = DATA_DIR / Path("new/test_copy")
         self.assertFalse(copied_path.exists())
         # add detection to frame 2 should self delete above to avoid leak

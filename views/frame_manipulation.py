@@ -38,11 +38,15 @@ class FrameManipulationWidget(QGroupBox):
         for frame in self.state.file_names[:current_frame]: os.remove(frame)
         self.state.load_files()
         self.state.current_frame = 0
-        for detection in self.state.detections.values(): detection.frame -= current_frame
+        for detection in self.state.detections.values():
+            detection.frame -= current_frame
+            if detection.frame < 0: self.state.delete_detection(detection.track_id)
 
     def delete_future_frames(self):
         if not self.admin_mode.isChecked(): return
         for frame in self.state.file_names[self.state.current_frame + 1:]:
             os.remove(frame)
         self.state.load_files()
-        # TODO: Remove detections for these deleted frames
+        for detection in self.state.detections.values():
+            if detection.frame > self.state.current_frame:
+                self.state.delete_detection(detection.track_id)

@@ -5,6 +5,7 @@ from views.image_viewer import ImageViewer
 from views.video_list import VideoListWidget
 from views.controls import ControlsWidget
 from views.recorder import Recorder
+from views.frame_manipulation import FrameManipulationWidget
 from core.keybinds import Keybinds
 from core.state import State
 
@@ -41,12 +42,16 @@ class MainWindow(QMainWindow):
 
         close = QAction('Close window', self)
         close.setShortcut('Ctrl+W')
-        close.triggered.connect(self.close)
+        close.triggered.connect(self.on_close)
         fileMenu.addAction(close)
 
         self.setCentralWidget(self.central_widget)
 
         self.show()
+
+    def on_close(self):
+        self.central_widget.state.save_annotations()
+        self.close()
 
 class CentralWidget(QWidget):
     def __init__(self):
@@ -65,6 +70,7 @@ class CentralWidget(QWidget):
         self.recorder = Recorder(self, self.state)
         self.image_viewer = ImageViewer(self, self.state)
         self.video_list = VideoListWidget(self, self.state)
+        self.frame_manipulation = FrameManipulationWidget(self, self.state)
         self.make_layout()
         self.player = None
 
@@ -104,7 +110,7 @@ class CentralWidget(QWidget):
         self.frame_number_label.setText(f"Frame {current_frame} of {total_frames}")
 
     def reload_video(self):
-        self.state.video_list = self.state.find_videos()
+        self.state.load_videos()
         self.video_list.on_video_change()
         self.image_viewer.on_video_change()
 
