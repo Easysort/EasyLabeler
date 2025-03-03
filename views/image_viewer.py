@@ -18,8 +18,8 @@ class ImageViewer(QWidget):
         self.fixed_height = int(self.fixed_width * 0.75)
         self.setFixedSize(self.fixed_width, self.fixed_height)
 
-        self.setFocusPolicy(Qt.StrongFocus)
-        self.setFocus()
+        # self.setFocusPolicy(Qt.StrongFocus)
+        # self.setFocus()
 
         self.setMouseTracking(True)
 
@@ -84,6 +84,8 @@ class ImageViewer(QWidget):
             self.start_pos = None
             self.current_pos = None
             self.update()
+        else:
+            self.central_widget.keyPressEvent(event)
 
     def get_bbox_from_points(self, start, end):
         scale = 1 / (self.zoom * self.img_scale)
