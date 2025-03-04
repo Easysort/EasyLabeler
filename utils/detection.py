@@ -1,5 +1,5 @@
 import numpy as np
-from utils.classes import DEFAULT_CLASS_NAMES, DEFAULT_COLORS
+from utils.classes import DEFAULT_CLASS_NAMES, DEFAULT_COLORS, DEFAULT_CLASS_TO_FRACTION, DEFAULT_FRACTIONS
 
 class Bbox:
     def __init__(self, x: float = 0, y: float = 0, w: float = 0, h: float = 0):
@@ -48,12 +48,6 @@ class Detection:
     def from_json(data: dict) -> "Detection": return Detection(data["frame"], data["class_id"], data["track_id"], Bbox(*data["bbox"]))
     def __repr__(self) -> str: return f"Detection(frame={self.frame}, class_id={self.class_id}, track_id={self.track_id}, bbox={self.bbox})"
 
-    @property
-    def class_name(self) -> str: return DEFAULT_CLASS_NAMES[self.class_id]
-
-    @property
-    def color(self) -> tuple[int, int, int]: return DEFAULT_COLORS[self.class_id]
-
     def to_json(self) -> dict:
         return {
             "frame": self.frame,
@@ -67,3 +61,33 @@ class Detection:
 
     def __eq__(self, other: "Detection") -> bool:
         return self.frame == other.frame and self.track_id == other.track_id and self.class_id == other.class_id and self.bbox == other.bbox
+
+    # Class handling:
+    @property
+    def class_name(self) -> str: return DEFAULT_CLASS_NAMES[self.class_id]
+
+    @property
+    def color(self) -> tuple[int, int, int]: return DEFAULT_COLORS[self.class_id]
+
+    def move_class_id_up(self):
+        next_id = self.class_id + 1
+        while next_id not in DEFAULT_CLASS_NAMES:
+            next_id += 1
+            if next_id > max(DEFAULT_CLASS_NAMES.keys()):
+                next_id = min(DEFAULT_CLASS_NAMES.keys())
+        self.class_id = next_id
+
+    def move_class_id_down(self):
+        prev_id = self.class_id - 1
+        while prev_id not in DEFAULT_CLASS_NAMES:
+            prev_id -= 1
+            if prev_id < min(DEFAULT_CLASS_NAMES.keys()):
+                prev_id = max(DEFAULT_CLASS_NAMES.keys())
+        self.class_id = prev_id
+
+    def move_class_id_up_fraction(self):
+        self.class_id = DEFAULT_FRACTIONS[0 if DEFAULT_CLASS_TO_FRACTION[self.class_id] + 1 >= len(DEFAULT_FRACTIONS)
+                                          else DEFAULT_CLASS_TO_FRACTION[self.class_id] + 1]
+    def move_class_id_down_fraction(self):
+        self.class_id = DEFAULT_FRACTIONS[len(DEFAULT_FRACTIONS) - 1 if DEFAULT_CLASS_TO_FRACTION[self.class_id] - 1 < 0
+                                          else DEFAULT_CLASS_TO_FRACTION[self.class_id] - 1]

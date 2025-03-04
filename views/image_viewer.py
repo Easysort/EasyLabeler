@@ -212,3 +212,20 @@ class ImageViewer(QWidget):
                 qp.drawRect(x, y, w, h)
 
         qp.end()
+
+    # Keybinds for class handling:
+    def move_class_id_up(self):
+        self.selected_detection.move_class_id_up() if self.selected_detection else None
+        self.update()
+
+    def move_class_id_down(self):
+        self.selected_detection.move_class_id_down() if self.selected_detection else None
+        self.update()
+
+    def move_class_id_up_fraction(self):
+        self.selected_detection.move_class_id_up_fraction() if self.selected_detection else None
+        self.update()
+
+    def move_class_id_down_fraction(self):
+        self.selected_detection.move_class_id_down_fraction() if self.selected_detection else None
+        self.update()

@@ -143,6 +143,11 @@ class CentralWidget(QWidget):
         self.state.change_frame(-5)
         self.image_viewer.on_current_frame_change()
 
+    def move_class_id_up(self): self.image_viewer.move_class_id_up()
+    def move_class_id_down(self): self.image_viewer.move_class_id_down()
+    def move_class_id_up_fraction(self): self.image_viewer.move_class_id_up_fraction()
+    def move_class_id_down_fraction(self): self.image_viewer.move_class_id_down_fraction()
+
 if __name__ == '__main__':
     app = QApplication([])
     main_window = MainWindow()
