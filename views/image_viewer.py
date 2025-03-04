@@ -88,7 +88,7 @@ class ImageViewer(QWidget):
                 bbox = self.get_bbox_from_points(self.start_pos, self.current_pos)
                 detection = Detection(
                     frame=self._state.current_frame,
-                    class_id=0,  # Default class # TODO: Add class selection
+                    class_id=0,
                     track_id=self._state.get_next_track_id(),
                     bbox=bbox
                 )
@@ -96,6 +96,16 @@ class ImageViewer(QWidget):
                 self.start_pos = None
                 self.current_pos = None
             self.update()
+
+        elif event.button() == Qt.RightButton:
+            for detection in self._state.get_frame_detections(self._state.current_frame):
+                corner_index = self.is_near_corner(event.pos().x(), event.pos().y(), detection)
+                if corner_index is not None:
+                    self._state.delete_detection(detection.track_id)
+                    if self.selected_detection and self.selected_detection == detection:
+                        self.selected_detection = None
+                    self.update()
+                    return
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton and self.dragging_corner:
