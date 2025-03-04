@@ -19,16 +19,32 @@ EasyLabeler makes the process of annotating videos as easy as possible. It has m
 Run using:
 
 ```
+
 python main.py
 ```
+
+# How to use:
+
+Space: Play/Pause
+H, J, K, L: Skip -5, -1, 1, 5 frames
+W, S: Move class id up, down
+A, D: Move class id fraction up, down
+
+Add detections by pressing on image. (ESC to cancel)
+Change detection by holding on the corners. 
+Highlight detections by clicking on them. (ESC to unhighlight)
 
 # Fully open-source
 You can use EasyLabeler as you like, copy it, modify it, sell it, do whatever you like with it. The project is in active development, so issues and pull requests are welcome.
 
-
-
-- [ ] Detections
-- [ ] Be able to modify, save, import detections
-- [ ] Run yolos
-- [ ] Delete previous or future detections
+- [x] Refactor detections and bbox
+- [x] Be able to load detections
+- [x] Be able to add detections
+- [x] Be able to modify detections
+- [x] Be able to delete detections
+- [x] Be able to visualize detections
+- [ ] Be able to run Yolos
+- [ ] Be able to change class_ids
+- [ ] Be able to focus detection
+- [ ] Be able to modify detection corners
 - [ ] Readme

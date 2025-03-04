@@ -52,19 +52,18 @@ class ImageViewer(QWidget):
         if event.button() == Qt.LeftButton:
             # If close to a detection corner, select it
             for detection in self._state.get_frame_detections(self._state.current_frame):
-                if detection.is_near_point(event.pos().x(), event.pos().y(), scale = 1 / (self.zoom * self.img_scale)):
-                    if self.selected_detection and detection == self.selected_detection:
-                        self.selected_detection = None
-                    else:
-                        self.selected_detection = detection
+                if detection.is_near_point(event.pos().x(), event.pos().y(), scale = 1/(self.zoom * self.img_scale)):
+                    self.selected_detection = None if self.selected_detection and self.selected_detection == detection else detection
                     self.update()
                     return
             if not self.is_creating_detection:
                 self.is_creating_detection = True
+                self.selected_detection = None
                 self.start_pos = event.pos()
                 self.current_pos = event.pos()
             else:
                 self.is_creating_detection = False
+                self.selected_detection = None
                 bbox = self.get_bbox_from_points(self.start_pos, self.current_pos)
                 detection = Detection(
                     frame=self._state.current_frame,
@@ -83,11 +82,15 @@ class ImageViewer(QWidget):
             self.update()
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape and self.is_creating_detection:
-            self.is_creating_detection = False
-            self.start_pos = None
-            self.current_pos = None
-            self.update()
+        if event.key() == Qt.Key_Escape:
+            if self.selected_detection:
+                self.selected_detection = None
+                self.update()
+            elif self.is_creating_detection:
+                self.is_creating_detection = False
+                self.start_pos = None
+                self.current_pos = None
+                self.update()
         else:
             self.central_widget.keyPressEvent(event)
 
