@@ -7,7 +7,7 @@ from views.frame_manipulation import FrameManipulationWidget
 from pathlib import Path
 import shutil
 from config import DATA_DIR
-from tests.test_utils import get_dummy_detection
+from tests.test_utils import get_dummy_detection, UniversalCleanup
 
 class TestFrameManipulation(unittest.TestCase):
     @classmethod
@@ -17,11 +17,11 @@ class TestFrameManipulation(unittest.TestCase):
         cls.frame_manipulation_widget = FrameManipulationWidget(cls.central_widget, cls.central_widget.state)
         cls.frame_manipulation_widget.admin_mode.setChecked(True)
         cls.central_widget.state.current_video = "new/test"
+        cls.cleanup = UniversalCleanup()
 
     @classmethod
     def tearDownClass(cls):
-        if (DATA_DIR / Path("new/test_temp")).exists():
-            shutil.rmtree(DATA_DIR / Path("new/test_temp"))
+        cls.cleanup.cleanup()
         cls.app.quit()
 
     def copy_video(self) -> tuple[CentralWidget, FrameManipulationWidget]:
@@ -29,6 +29,7 @@ class TestFrameManipulation(unittest.TestCase):
         frame_manipulation_widget: FrameManipulationWidget = self.frame_manipulation_widget
         path = Path("data") / Path("new/test")
         copied_path = Path("data/new/test_temp")
+        self.cleanup.add_file(copied_path)
         os.makedirs(copied_path, exist_ok=True)
         shutil.copytree(path, copied_path, dirs_exist_ok=True)
         central_widget.state.current_video = "new/test_temp"
@@ -65,7 +66,6 @@ class TestFrameManipulation(unittest.TestCase):
         assert len(central_widget.state.detections) == 1, f"Detections: {central_widget.state.detections}"
         copied_path = DATA_DIR / Path("new/test_copy")
         self.assertFalse(copied_path.exists())
-        # add detection to frame 2 should self delete above to avoid leak
 
 if __name__ == "__main__":
     unittest.main()
