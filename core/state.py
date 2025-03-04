@@ -66,7 +66,7 @@ class State:
                 self.detections = {v['track_id']: Detection.from_json(v) for v in json.load(f)}
 
     def save_annotations(self):
-        if self.detections:
+        if self.detections and os.path.exists(os.path.join(DATA_DIR, self.current_video)):
             path = os.path.join(DATA_DIR, self.current_video, 'annotations.json')
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, 'w') as f: json.dump([v.to_json() for v in self.detections.values()], f, indent=2)

@@ -27,18 +27,20 @@ class TestFrameManipulation(unittest.TestCase):
     def copy_video(self) -> tuple[CentralWidget, FrameManipulationWidget]:
         central_widget: CentralWidget = self.central_widget
         frame_manipulation_widget: FrameManipulationWidget = self.frame_manipulation_widget
+        frame_manipulation_widget.admin_mode.setChecked(True)
         path = Path("data") / Path("new/test")
         copied_path = Path("data/new/test_temp")
         self.cleanup.add_file(copied_path)
         os.makedirs(copied_path, exist_ok=True)
         shutil.copytree(path, copied_path, dirs_exist_ok=True)
-        central_widget.state.current_video = "new/test_temp"
+        central_widget.state.set_current_video("new/test_temp")
         central_widget.state.load_videos()
         return central_widget, frame_manipulation_widget
 
     def test_delete_video(self):
-        _, frame_manipulation_widget = self.copy_video()
+        central_widget, frame_manipulation_widget = self.copy_video()
         copied_path = DATA_DIR / Path("new/test_temp")
+        self.assertTrue(central_widget.state.current_video == "new/test_temp")
         self.assertTrue(copied_path.exists())
         frame_manipulation_widget.delete_video()
         self.assertFalse(copied_path.exists())
@@ -58,6 +60,7 @@ class TestFrameManipulation(unittest.TestCase):
         assert central_widget.state.detections[0].frame == 0
         assert central_widget.state.current_frame == 0
         assert len(central_widget.state.file_names) == 3
+        frame_manipulation_widget.admin_mode.setChecked(True)
         frame_manipulation_widget.delete_future_frames()
         assert central_widget.state.current_frame == 0
         assert len(central_widget.state.file_names) == 1

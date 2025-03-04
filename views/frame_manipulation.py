@@ -31,6 +31,11 @@ class FrameManipulationWidget(QGroupBox):
     def delete_video(self):
         if not self.admin_mode.isChecked(): return
         shutil.rmtree(os.path.join(DATA_DIR, self.state.current_video))
+        self.state.load_videos()
+        self.state.set_current_video(self.state.video_list[0])
+        self.admin_mode.setChecked(False)
+        self.central_widget.image_viewer.on_video_change()
+        self.central_widget.video_list.on_video_change()
 
     def delete_previous_frames(self):
         if not self.admin_mode.isChecked(): return
@@ -41,6 +46,8 @@ class FrameManipulationWidget(QGroupBox):
         for detection in self.state.detections.values():
             detection.frame -= current_frame
             if detection.frame < 0: self.state.delete_detection(detection.track_id)
+        self.admin_mode.setChecked(False)
+        self.central_widget.image_viewer.on_video_change()
 
     def delete_future_frames(self):
         if not self.admin_mode.isChecked(): return
@@ -50,3 +57,5 @@ class FrameManipulationWidget(QGroupBox):
         for detection in self.state.detections.values():
             if detection.frame > self.state.current_frame:
                 self.state.delete_detection(detection.track_id)
+        self.admin_mode.setChecked(False)
+        self.central_widget.image_viewer.on_video_change()

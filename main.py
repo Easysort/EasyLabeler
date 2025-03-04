@@ -99,6 +99,7 @@ class CentralWidget(QWidget):
         control_layout = QVBoxLayout()
         control_layout.addWidget(self.controls)
         control_layout.addWidget(self.recorder)
+        control_layout.addWidget(self.frame_manipulation)
         control_layout.addStretch()
         control_box.setLayout(control_layout)
         content_layout.addWidget(control_box)
