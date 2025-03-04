@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QApplication
-from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QPainter, QImage, QPen
+from PyQt5.QtCore import QPoint, Qt, QRect
+from PyQt5.QtGui import QPainter, QImage, QPen, QColor, QFont
 import cv2
 import numpy as np
 
@@ -168,22 +168,40 @@ class ImageViewer(QWidget):
             img = QImage(self.canvas.data, width, height, bpl, QImage.Format_RGB888)
             qp.drawImage(QPoint(0, 0), img)
 
-            qp.setPen(Qt.blue)
             for detection in self._state.get_frame_detections(self._state.current_frame):
                 scale = self.zoom * self.img_scale
                 x, y, w, h = detection.bbox.xywh() * scale
                 x += self.offset.x()
                 y += self.offset.y()
+
+                detection_color = QColor(*detection.color)
+
                 if self.selected_detection and detection == self.selected_detection:
-                    qp.setPen(QPen(Qt.blue, 3))
+                    qp.setPen(QPen(detection_color, 3))
                     corners = np.array(detection.bbox.corners()) * scale
                     corners += self.offset.x(), self.offset.y()
                     for cx, cy in corners:
                         qp.fillRect(int(cx - self.corner_size/2), int(cy - self.corner_size/2),
-                                    self.corner_size, self.corner_size, Qt.blue)
+                                    self.corner_size, self.corner_size, detection_color)
                 else:
-                    qp.setPen(QPen(Qt.blue, 1))
+                    qp.setPen(QPen(detection_color, 1))
+
                 qp.drawRect(int(x), int(y), int(w), int(h))
+
+                text = detection.class_name
+                qp.setFont(QFont("Arial", 8, QFont.Bold))
+
+                metrics = qp.fontMetrics()
+                text_width = metrics.width(text)
+                text_height = metrics.height()
+                padding = 2
+
+                bg_rect = QRect(int(x), int(y - text_height - padding*2),
+                              text_width + padding*2, text_height + padding*2)
+                qp.fillRect(bg_rect, QColor(0, 0, 0, 160))
+
+                qp.setPen(Qt.white)
+                qp.drawText(int(x + padding), int(y - padding), text)
 
             if self.is_creating_detection and self.start_pos and self.current_pos:
                 qp.setPen(Qt.red)
