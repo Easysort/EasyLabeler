@@ -1,11 +1,9 @@
-
 import numpy as np
 
 class Bbox:
     def __init__(self, x: float = 0, y: float = 0, w: float = 0, h: float = 0):
         self.pos = np.array([x, y], dtype=float)
         self.size = np.array([w, h], dtype=float)
-
     def resize(self, scale: float) -> None:
         self.pos *= scale
         self.size *= scale
@@ -20,10 +18,13 @@ class Bbox:
         self.pos[1] = y1
     def set_x2(self, x2: float) -> None: self.size[0] += (x2 - self.pos[0] - self.size[0])
     def set_y2(self, y2: float) -> None: self.size[1] += (y2 - self.pos[1] - self.size[1])
+    def corners(self) -> list[np.ndarray]:
+        return [np.array([self.x1, self.y1]), np.array([self.x2, self.y1]), np.array([self.x1, self.y2]), np.array([self.x2, self.y2])]
     def to_json(self) -> list: return self.xywh().tolist()
     def to_dict(self) -> dict: return {"x": self.pos[0], "y": self.pos[1], "w": self.size[0], "h": self.size[1]}
     def copy(self) -> "Bbox": return Bbox(*self.to_json())
     def __repr__(self) -> str: return "Bbox(x={}, y={}, w={}, h={})".format(self.pos[0], self.pos[1], self.size[0], self.size[1])
+    def __eq__(self, other: "Bbox") -> bool: return np.allclose(self.pos, other.pos) and np.allclose(self.size, other.size)
 
     @property
     def x1(self) -> float: return self.pos[0]
@@ -53,3 +54,9 @@ class Detection:
             "class_id": self.class_id,
             "bbox": self.bbox.to_json()
         }
+
+    def is_near_point(self, x: float, y: float, scale: float = 1.0, threshold: float = 10.0) -> bool:
+        return any(np.linalg.norm(corner - (np.array([x, y]) * scale)) < threshold for corner in self.bbox.corners())
+
+    def __eq__(self, other: "Detection") -> bool:
+        return self.frame == other.frame and self.track_id == other.track_id and self.class_id == other.class_id and self.bbox == other.bbox

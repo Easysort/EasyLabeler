@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QPainter, QImage
+from PyQt5.QtGui import QPainter, QImage, QPen
 import cv2
 import numpy as np
 
@@ -17,10 +17,6 @@ class ImageViewer(QWidget):
         self.fixed_width = int(screen.width() * 0.7)
         self.fixed_height = int(self.fixed_width * 0.75)
         self.setFixedSize(self.fixed_width, self.fixed_height)
-
-        # self.setFocusPolicy(Qt.StrongFocus)
-        # self.setFocus()
-
         self.setMouseTracking(True)
 
         self.img = None
@@ -30,11 +26,10 @@ class ImageViewer(QWidget):
         self.is_creating_detection = False
         self.start_pos = None
         self.current_pos = None
-
+        self.selected_detection = None
         self.on_current_frame_change()
 
     def on_video_change(self):
-        # Should save detections before changing video
         self.on_current_frame_change()
 
     def on_current_frame_change(self):
@@ -55,6 +50,15 @@ class ImageViewer(QWidget):
     def mousePressEvent(self, event):
         self.setFocus()
         if event.button() == Qt.LeftButton:
+            # If close to a detection corner, select it
+            for detection in self._state.get_frame_detections(self._state.current_frame):
+                if detection.is_near_point(event.pos().x(), event.pos().y(), scale = 1 / (self.zoom * self.img_scale)):
+                    if self.selected_detection and detection == self.selected_detection:
+                        self.selected_detection = None
+                    else:
+                        self.selected_detection = detection
+                    self.update()
+                    return
             if not self.is_creating_detection:
                 self.is_creating_detection = True
                 self.start_pos = event.pos()
@@ -111,6 +115,10 @@ class ImageViewer(QWidget):
                 x, y, w, h = detection.bbox.xywh() * scale
                 x += self.offset.x()
                 y += self.offset.y()
+                if self.selected_detection and detection == self.selected_detection:
+                    qp.setPen(QPen(Qt.blue, 3))
+                else:
+                    qp.setPen(QPen(Qt.blue, 1))
                 qp.drawRect(int(x), int(y), int(w), int(h))
 
             if self.is_creating_detection and self.start_pos and self.current_pos:

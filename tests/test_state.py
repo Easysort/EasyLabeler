@@ -15,6 +15,7 @@ class TestState(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        # Add universal cleanup
         cls.app.quit()
 
     def setUp(self):

@@ -11,6 +11,10 @@ class Keybinds:
             Qt.Key_L: self.central_widget.skip5,
             Qt.Key_J: self.central_widget.skip_back1,
             Qt.Key_H: self.central_widget.skip_back5,
+            Qt.Key_W: ...,
+            Qt.Key_S: ...,
+            Qt.Key_A: ...,
+            Qt.Key_D: ...,
         }
 
     def keyPressEvent(self, event: QKeyEvent):
