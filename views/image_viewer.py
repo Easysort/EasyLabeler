@@ -27,6 +27,9 @@ class ImageViewer(QWidget):
         self.start_pos = None
         self.current_pos = None
         self.selected_detection = None
+        self.dragging_corner = None
+        self.corner_index = None
+        self.corner_size = 8
         self.on_current_frame_change()
 
     def on_video_change(self):
@@ -47,15 +50,33 @@ class ImageViewer(QWidget):
         self.canvas: np.ndarray = cv2.warpAffine(self.img, M, (self.fixed_width, self.fixed_height))
         self.update()
 
+    def is_near_corner(self, x, y, detection):
+        """Check if the mouse is near any corner of the detection"""
+        scale = self.zoom * self.img_scale
+        screen_corners = np.array(detection.bbox.corners()) * scale + self.offset.x(), self.offset.y()
+        for i, (cx, cy) in enumerate(screen_corners[0]):
+            if np.sqrt((x - cx)**2 + (y - cy)**2) < 10: return i
+        return None
+
     def mousePressEvent(self, event):
         self.setFocus()
         if event.button() == Qt.LeftButton:
+            # If we have a selected detection, check if we're near a corner
+            if self.selected_detection:
+                corner_index = self.is_near_corner(event.pos().x(), event.pos().y(), self.selected_detection)
+                if corner_index is not None:
+                    self.dragging_corner = True
+                    self.corner_index = corner_index
+                    self.current_pos = event.pos()
+                    return
+
             # If close to a detection corner, select it
             for detection in self._state.get_frame_detections(self._state.current_frame):
                 if detection.is_near_point(event.pos().x(), event.pos().y(), scale = 1/(self.zoom * self.img_scale)):
                     self.selected_detection = None if self.selected_detection and self.selected_detection == detection else detection
                     self.update()
                     return
+
             if not self.is_creating_detection:
                 self.is_creating_detection = True
                 self.selected_detection = None
@@ -76,8 +97,42 @@ class ImageViewer(QWidget):
                 self.current_pos = None
             self.update()
 
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.dragging_corner:
+            self.dragging_corner = False
+            self.update()
+            if self.selected_detection:
+                self._state.update_detection(self.selected_detection)
+
     def mouseMoveEvent(self, event):
-        if self.is_creating_detection:
+        if self.selected_detection and not self.dragging_corner:
+            corner_index = self.is_near_corner(event.pos().x(), event.pos().y(), self.selected_detection)
+            if corner_index is not None:
+                self.setCursor(Qt.SizeFDiagCursor if corner_index in [0, 3] else Qt.SizeBDiagCursor)
+            else:
+                self.setCursor(Qt.ArrowCursor)
+
+        if self.dragging_corner and self.selected_detection:
+            self.current_pos = event.pos()
+            scale = 1 / (self.zoom * self.img_scale)
+            x = (event.pos().x() - self.offset.x()) * scale
+            y = (event.pos().y() - self.offset.y()) * scale
+
+            if self.corner_index == 0:  # Top-left
+                self.selected_detection.bbox.set_x1(x)
+                self.selected_detection.bbox.set_y1(y)
+            elif self.corner_index == 1:  # Top-right
+                self.selected_detection.bbox.set_x2(x)
+                self.selected_detection.bbox.set_y1(y)
+            elif self.corner_index == 2:  # Bottom-left
+                self.selected_detection.bbox.set_x1(x)
+                self.selected_detection.bbox.set_y2(y)
+            elif self.corner_index == 3:  # Bottom-right
+                self.selected_detection.bbox.set_x2(x)
+                self.selected_detection.bbox.set_y2(y)
+
+            self.update()
+        elif self.is_creating_detection:
             self.current_pos = event.pos()
             self.update()
 
@@ -85,6 +140,7 @@ class ImageViewer(QWidget):
         if event.key() == Qt.Key_Escape:
             if self.selected_detection:
                 self.selected_detection = None
+                self.setCursor(Qt.ArrowCursor)
                 self.update()
             elif self.is_creating_detection:
                 self.is_creating_detection = False
@@ -120,6 +176,11 @@ class ImageViewer(QWidget):
                 y += self.offset.y()
                 if self.selected_detection and detection == self.selected_detection:
                     qp.setPen(QPen(Qt.blue, 3))
+                    corners = np.array(detection.bbox.corners()) * scale
+                    corners += self.offset.x(), self.offset.y()
+                    for cx, cy in corners:
+                        qp.fillRect(int(cx - self.corner_size/2), int(cy - self.corner_size/2),
+                                    self.corner_size, self.corner_size, Qt.blue)
                 else:
                     qp.setPen(QPen(Qt.blue, 1))
                 qp.drawRect(int(x), int(y), int(w), int(h))
