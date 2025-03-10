@@ -6,6 +6,7 @@ from views.video_list import VideoListWidget
 from views.controls import ControlsWidget
 from views.recorder import Recorder
 from views.frame_manipulation import FrameManipulationWidget
+from views.yolos import YoloWidget
 from core.keybinds import Keybinds
 from core.state import State
 
@@ -71,6 +72,7 @@ class CentralWidget(QWidget):
         self.image_viewer = ImageViewer(self, self.state)
         self.video_list = VideoListWidget(self, self.state)
         self.frame_manipulation = FrameManipulationWidget(self, self.state)
+        self.yolos_widget = YoloWidget(self, self.state)
         self.make_layout()
         self.player = None
 
@@ -100,6 +102,7 @@ class CentralWidget(QWidget):
         control_layout.addWidget(self.controls)
         control_layout.addWidget(self.recorder)
         control_layout.addWidget(self.frame_manipulation)
+        control_layout.addWidget(self.yolos_widget)
         control_layout.addStretch()
         control_box.setLayout(control_layout)
         content_layout.addWidget(control_box)
