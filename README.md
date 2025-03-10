@@ -19,8 +19,7 @@ EasyLabeler makes the process of annotating videos as easy as possible. It has m
 Run using:
 
 ```
-
-python main.py
+PYTHONPATH="Easysort" python main.py
 ```
 
 # How to use:
@@ -32,7 +31,8 @@ A, D: Move class id fraction up, down
 
 Add detections by pressing on image. (ESC to cancel)
 Change detection by holding on the corners. 
-Highlight detections by clicking on them. (ESC to unhighlight)
+Highlight detections by clicking on a corner of the detection. (ESC to unhighlight)
+Right click on a corner to delete a detection
 
 # Fully open-source
 You can use EasyLabeler as you like, copy it, modify it, sell it, do whatever you like with it. The project is in active development, so issues and pull requests are welcome.
@@ -44,7 +44,9 @@ You can use EasyLabeler as you like, copy it, modify it, sell it, do whatever yo
 - [x] Be able to delete detections
 - [x] Be able to visualize detections
 - [ ] Be able to run Yolos
-- [ ] Be able to change class_ids
-- [ ] Be able to focus detection
-- [ ] Be able to modify detection corners
+- [ ] Interpolation
+- [x] Be able to change class_ids
+- [x] Be able to focus detection
+- [x] Be able to modify detection corners
 - [ ] Readme
+- [ ] Should be able to have the same track_id for different detections in different frames (max 1 in each frame)
