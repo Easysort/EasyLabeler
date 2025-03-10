@@ -19,6 +19,9 @@ EasyLabeler makes the process of annotating videos as easy as possible. It has m
 Run using:
 
 ```
+python3.10 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 PYTHONPATH="Easysort" python main.py
 ```
 
