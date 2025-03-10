@@ -53,7 +53,7 @@ jobs:
         env:
           PYTHONPATH: "."
           QT_QPA_PLATFORM: "offscreen"
-        run: python -m pytest tests/
+        run: PYTHONPATH="Easysort" python -m pytest tests/
 
       - name: Run Pylint
         run: python -m pylint core/ utils/ views/ main.py config.py mapping.py tests/
